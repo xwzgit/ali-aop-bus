@@ -1,6 +1,6 @@
 <?php
 namespace AopBus\Support\Aop;
-
+use Exception;
 class AopCertClient
 {
     //应用证书地址
@@ -83,7 +83,7 @@ class AopCertClient
     {
         $cert = file_get_contents($certPath);
         $ssl = openssl_x509_parse($cert);
-        $SN = md5(array2string(array_reverse($ssl['issuer'])) . $ssl['serialNumber']);
+        $SN = md5(AopCertification::array2string(array_reverse($ssl['issuer'])) . $ssl['serialNumber']);
         return $SN;
     }
 
@@ -105,10 +105,10 @@ class AopCertClient
             }
             if ($ssl[$i]['signatureTypeLN'] == "sha1WithRSAEncryption" || $ssl[$i]['signatureTypeLN'] == "sha256WithRSAEncryption") {
                 if ($SN == null) {
-                    $SN = md5(array2string(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
+                    $SN = md5(AopCertification::array2string(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
                 } else {
 
-                    $SN = $SN . "_" . md5(array2string(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
+                    $SN = $SN . "_" . md5(AopCertification::array2string(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
                 }
             }
         }
@@ -405,7 +405,7 @@ class AopCertClient
                 throw new Exception("加密类型只支持AES");
             }
             // 执行加密
-            $enCryptContent = encrypt($apiParams['biz_content'], $this->encryptKey);
+            $enCryptContent = AopEncrypt::encrypt($apiParams['biz_content'], $this->encryptKey);
             $apiParams['biz_content'] = $enCryptContent;
         }
         $totalParams = array_merge($apiParams, $sysParams);
@@ -534,7 +534,7 @@ class AopCertClient
                 throw new Exception("加密类型只支持AES");
             }
             // 执行加密
-            $enCryptContent = encrypt($apiParams['biz_content'], $this->encryptKey);
+            $enCryptContent = AopEncrypt::encrypt($apiParams['biz_content'], $this->encryptKey);
             $apiParams['biz_content'] = $enCryptContent;
         }
 
@@ -1020,7 +1020,7 @@ class AopCertClient
                         $cert = base64_decode($certContent);
                         $certCheck = true;
                         if(!empty($this->alipayRootCertContent) && $this->isCheckAlipayPublicCert){
-                            $certCheck = isTrusted($cert,$this->alipayRootCertContent);
+                            $certCheck = AopCertification::isTrusted($cert,$this->alipayRootCertContent);
                         }
                         if($certCheck){
                             $pkey = openssl_pkey_get_public($cert);
@@ -1113,7 +1113,7 @@ class AopCertClient
         $parsetItem = $this->parserEncryptJSONSignSource($request, $responseContent);
         $bodyIndexContent = substr($responseContent, 0, $parsetItem->startIndex);
         $bodyEndContent = substr($responseContent, $parsetItem->endIndex, strlen($responseContent) + 1 - $parsetItem->endIndex);
-        $bizContent = decrypt($parsetItem->encryptContent, $this->encryptKey);
+        $bizContent = AopEncrypt::decrypt($parsetItem->encryptContent, $this->encryptKey);
         return $bodyIndexContent . $bizContent . $bodyEndContent;
     }
 
@@ -1159,7 +1159,7 @@ class AopCertClient
         $parsetItem = $this->parserEncryptXMLSignSource($request, $responseContent);
         $bodyIndexContent = substr($responseContent, 0, $parsetItem->startIndex);
         $bodyEndContent = substr($responseContent, $parsetItem->endIndex, strlen($responseContent) + 1 - $parsetItem->endIndex);
-        $bizContent = decrypt($parsetItem->encryptContent, $this->encryptKey);
+        $bizContent = AopEncrypt::decrypt($parsetItem->encryptContent, $this->encryptKey);
         return $bodyIndexContent . $bizContent . $bodyEndContent;
 
     }

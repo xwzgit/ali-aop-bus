@@ -18,11 +18,7 @@
     "autoload": {
         "psr-4": {
             "AopBus\\": "src/AopBus/"
-        },
-        "files": [
-            "src/AopBus/Support/Aop/AopEncrypt.php",
-            "src/AopBus/Support/Aop/AopCertification.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
