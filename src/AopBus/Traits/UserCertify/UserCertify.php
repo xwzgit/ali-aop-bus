@@ -84,8 +84,10 @@ trait UserCertify
 
         if(isset($result->code) && $result->code == 10000 ) {
             $certifyUrl = $this->userCertifyRequest($result->certify_id);
-            echo $certifyUrl;
+            return ['certifyUrl' => $certifyUrl , 'certifyId' => $result->certify_id] ;
         }
+
+        return false;
     }
 
     /**
